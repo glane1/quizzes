@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Ultimate Logic Challenge</title>
+    <style>
+        body {
+            font-family: Arial;
+            background: #111;
+            color: white;
+            text-align: center;
+            margin-top: 40px;
+        }
+        .box {
+            background: #222;
+            width: 750px;
+            margin: auto;
+            padding: 25px;
+            border-radius: 10px;
+            box-shadow: 0 0 15px #00ffcc;
+        }
+        button {
+            margin: 6px;
+            padding: 10px;
+            width: 80%;
+            cursor: pointer;
+            background: #333;
+            color: white;
+            border: 1px solid #00ffcc;
+        }
+        button:hover { background: #00ffcc; color: black; }
+        .correct { background: green !important; }
+        .wrong { background: red !important; }
+        #feedback { margin-top: 15px; font-size: 20px; font-weight: bold; }
+    </style>
+</head>
+<body>
+
+<div class="box">
+    <h2>🧠 Ultimate Logic Challenge</h2>
+
+    <div id="difficulty">
+        <h3>Select Difficulty</h3>
+        <button onclick="startQuiz('normal')">🟢 Normal</button><br>
+        <button onclick="startQuiz('hard')">🟠 Hard</button><br>
+        <button onclick="startQuiz('extrahard')">🔴 Extra Hard</button><br>
+        <button onclick="startQuiz('extreme')">🟣 Extreme</button><br>
+        <button onclick="startQuiz('impossible')">⚫ Impossible</button>
+    </div>
+
+
+
+    <div id="quizArea" style="display:none;">
+        <div id="question"></div>
+        <div id="answers"></div>
+        <div id="feedback"></div>
+        <div id="score"></div>
+    </div>
+</div>
+
+<script>
+
+// ---------------- QUESTION BANKS ----------------
+
+// Normal (basic logic/math)
+const normalBank = [
+{q:"2+2=?",a:["4","3","5","6"],c:0},{q:"5×3=?",a:["15","10","20","25"],c:0},
+{q:"Sun rises in?",a:["East","West","North","South"],c:0},{q:"10-4=?",a:["6","5","4","3"],c:0},
+{q:"Which is fruit?",a:["Apple","Carrot","Potato","Onion"],c:0},{q:"3+7=?",a:["10","11","9","12"],c:0},
+{q:"8÷2=?",a:["4","2","6","3"],c:0},{q:"Which is even?",a:["4","5","7","9"],c:0},
+{q:"1 more than 9?",a:["10","11","12","8"],c:0},{q:"Which is color?",a:["Blue","Dog","Chair","Car"],c:0},
+{q:"6+6=?",a:["12","10","11","13"],c:0},{q:"9-3=?",a:["6","5","4","3"],c:0},
+{q:"4×2=?",a:["8","6","4","10"],c:0},{q:"Square sides?",a:["4","3","5","6"],c:0},
+{q:"Water freezes at 0°C?",a:["True","False"],c:0},{q:"7+1=?",a:["8","9","6","7"],c:0},
+{q:"2×6=?",a:["12","10","8","14"],c:0},{q:"Which is animal?",a:["Dog","Rock","Pen","Cup"],c:0},
+{q:"5+5=?",a:["10","11","12","9"],c:0},{q:"100÷10=?",a:["10","20","5","15"],c:0},
+{q:"Largest planet?",a:["Jupiter","Earth","Mars","Venus"],c:0},{q:"Primary color?",a:["Red","Pink","Brown","Gray"],c:0},
+{q:"2+5=?",a:["7","6","8","9"],c:0},{q:"3×3=?",a:["9","6","12","8"],c:0},
+{q:"1+1=?",a:["2","1","3","0"],c:0},{q:"Even numbers?",a:["2","3","5","7"],c:0},
+{q:"9-5=?",a:["4","3","5","2"],c:0},{q:"3+4=?",a:["7","6","8","5"],c:0},
+{q:"What is 8-3?",a:["5","4","6","3"],c:0},{q:"Which is a mammal?",a:["Dog","Snake","Shark","Crocodile"],c:0}
+];
+
+// Hard (intermediate logic/math)
+const hardBank = [
+{q:"2,4,8,16,?",a:["32","24","18","20"],c:0},{q:"3,6,12,24,?",a:["48","36","30","60"],c:0},
+{q:"9÷3+2=?",a:["5","6","4","3"],c:0},{q:"Rearrange 'CIFAIPC'",a:["Pacific","Specific","Science","Traffic"],c:0},
+{q:"1,1,2,3,5,?",a:["8","6","7","10"],c:0},{q:"10,20,30,?",a:["40","35","45","50"],c:0},
+{q:"A,C,E,G,?",a:["I","H","J","K"],c:0},{q:"4,9,16,25,?",a:["36","49","30","35"],c:0},
+{q:"If all A are B, some B are C → some A definitely C?",a:["No","Yes"],c:0},{q:"5+3×2=?",a:["11","16","13","10"],c:0},
+{q:"Half of 100?",a:["50","40","60","25"],c:0},{q:"Prime number?",a:["13","15","21","9"],c:0},
+{q:"Triangle sides?",a:["3","4","5","6"],c:0},{q:"Odd one: Apple, Mango, Carrot, Banana",a:["Carrot","Apple","Mango","Banana"],c:0},
+{q:"9-7+5=?",a:["7","6","5","4"],c:0},{q:"12÷4=?",a:["3","4","2","6"],c:0},
+{q:"7×8=?",a:["56","54","64","48"],c:0},{q:"15+5=?",a:["20","25","10","15"],c:0},
+{q:"100-45=?",a:["55","50","60","45"],c:0},{q:"2²=?",a:["4","2","6","8"],c:0},
+{q:"5²=?",a:["25","20","30","15"],c:0},{q:"Cube of 2?",a:["8","6","4","12"],c:0},
+{q:"6,11,21,36,?",a:["56","50","45","60"],c:0},{q:"1,4,13,40,?",a:["121","100","80","90"],c:0},
+{q:"3,5,9,17,?",a:["33","25","21","27"],c:0},{q:"12,24,48,?",a:["96","72","100","90"],c:0},
+{q:"1,3,7,15,?",a:["31","30","28","25"],c:0},{q:"2,8,18,32,?",a:["50","48","52","54"],c:0},
+{q:"Next: 2,3,5,7,?",a:["11","9","13","15"],c:0},{q:"√144=?",a:["12","10","14","11"],c:0}
+];
+
+// Extra Hard (advanced logic/math)
+const extrahardBank = [
+{q:"5 machines make 5 items in 5 mins. 100 machines make 100 items in?",a:["5 mins","100 mins","1 min","500 mins"],c:0},
+{q:"Bat & ball cost $1.10. Bat $1 more. Ball?",a:["0.05","0.10","0.01","0.20"],c:2},
+{q:"1,4,9,16,25,?",a:["36","49","30","35"],c:0},{q:"√144=?",a:["12","10","14","11"],c:0},
+{q:"2^5=?",a:["32","16","64","25"],c:0},{q:"If today Sunday, day in 100 days?",a:["Tuesday","Monday","Wednesday","Thursday"],c:2},
+{q:"Binary of 2?",a:["10","11","01","100"],c:0},{q:"Next: 2,3,5,7,?",a:["11","9","13","15"],c:0},
+{q:"100÷(5×2)?",a:["10","20","5","2"],c:0},{q:"3³=?",a:["27","9","18","21"],c:0},
+{q:"Next: 1,3,6,10,?",a:["15","12","14","16"],c:0},{q:"LCM of 4 & 6?",a:["12","24","6","18"],c:0},
+{q:"HCF of 12 & 18?",a:["6","12","3","9"],c:0},{q:"Next: 11,22,33,?",a:["44","55","66","77"],c:0},
+{q:"Prime?",a:["17","21","27","15"],c:0},{q:"Factorial 4?",a:["24","12","16","20"],c:0},
+{q:"2/4 simplified?",a:["1/2","2/2","1/4","2/8"],c:0},{q:"Next: 5,10,20,40,?",a:["80","60","70","100"],c:0},
+{q:"Area of square side 5?",a:["25","20","15","30"],c:0},{q:"Perimeter square side 4?",a:["16","12","8","20"],c:0},
+{q:"Next: 3,9,27,?",a:["81","54","72","90"],c:0},{q:"Next: 8,6,4,2,?",a:["0","1","-2","3"],c:0},
+{q:"1,2,6,24,120,?",a:["720","600","840","360"],c:0},{q:"1,3,7,15,31,?",a:["63","62","64","61"],c:0},
+{q:"2,12,36,80,?",a:["150","140","160","120"],c:0},{q:"1,1,2,3,5,8,13,?",a:["21","20","18","19"],c:0},
+{q:"2,3,6,7,14,?",a:["15","21","16","18"],c:1},{q:"1,2,3,6,9,18,?",a:["27","36","24","30"],c:0}
+];
+
+// Extreme (insane logic)
+const extremeBank = [
+{q:"1,2,6,24,120,?",a:["720","600","840","360"],c:0},{q:"2,3,5,9,17,?",a:["33","34","31","35"],c:0},
+{q:"1,4,13,40,121,?",a:["364","360","400","300"],c:0},{q:"If 3 cats catch 3 mice in 3 minutes, how many cats to catch 100 mice in 100 minutes?",a:["3","100","10","30"],c:0},
+{q:"1,3,7,15,31,?",a:["63","62","64","61"],c:0},{q:"2,12,36,80,150,?",a:["252","200","300","180"],c:0},
+{q:"5 machines make 5 items in 5 mins. 100 machines make 100 items in?",a:["5 mins","100 mins","1 min","500 mins"],c:0},
+{q:"2,4,12,48,240,?",a:["1440","1200","1000","960"],c:0},{q:"If A=1, B=2, C=3... what is LOGIC?",a:["47","50","49","45"],c:2},
+{q:"1,1,2,3,5,8,13,?",a:["21","20","18","19"],c:0},{q:"3,4,8,9,27,28,?",a:["84","81","90","72"],c:0},
+{q:"7,49,8,64,9,?",a:["81","90","100","72"],c:0},{q:"2,6,7,21,22,?",a:["66","44","88","55"],c:0},
+{q:"11,22,44,88,?",a:["176","150","160","132"],c:0},{q:"1,5,14,30,55,?",a:["91","100","85","95"],c:0},
+{q:"9,18,16,32,30,?",a:["60","58","64","50"],c:0},{q:"1,2,4,7,11,16,?",a:["22","21","20","23"],c:0},
+{q:"2,3,6,7,14,?",a:["30","28","27","32"],c:0},{q:"4,16,36,64,?",a:["100","81","121","144"],c:0},
+{q:"1,9,17,25,33,?",a:["41","45","50","38"],c:0},{q:"2^3 + 3^2 = ?",a:["17","18","15","16"],c:0},
+{q:"If today is Monday, what day in 1000 days?",a:["Wednesday","Thursday","Friday","Sunday"],c:2},
+{q:"LCM of 6 and 8?",a:["24","48","12","16"],c:0},{q:"HCF of 18 and 24?",a:["6","12","3","9"],c:0},
+{q:"(5!) ÷ (3!) = ?",a:["20","10","60","15"],c:0},{q:"Next: 7, 10, 8, 11, 9, ?",a:["12","14","10","13"],c:0},
+{q:"Next: 1, 2, 6, 24, 120, ?",a:["720","600","840","360"],c:0},{q:"LOGIC puzzle: If L=12,O=15,G=7,I=9,C=3, sum?",a:["46","50","45","48"],c:1}
+];
+
+// Impossible (crazy brain teasers)
+const impossibleBank = [
+{q:"The sum of ages of 3 people is 100. Oldest is twice sum of other two. Age?",a:["50","60","40","70"],c:2},
+{q:"A chessboard has 64 squares. Max knights without attacking?",a:["32","16","64","24"],c:0},
+{q:"Find next prime after 97?",a:["101","103","99","100"],c:0},
+{q:"Which 3-digit number is divisible by 7,11,13?",a:["1001","1015","1029","1000"],c:0},
+{q:"Cube root of 512?",a:["8","6","9","7"],c:0},{q:"Sum 1 to 50?",a:["1275","1225","1300","1250"],c:0},
+{q:"If x+y=10, x-y=4, x=? ",a:["7","6","8","5"],c:0},{q:"Factorial 6?",a:["720","120","600","360"],c:0},
+{q:"Sum of first 20 odd numbers?",a:["400","400","210","200"],c:0},{q:"Next in 2,6,12,20,30,?",a:["42","40","36","45"],c:0},
+{q:"Which is palindrome?",a:["121","123","131","112"],c:0},{q:"Next: 1,1,2,6,24,120,?",a:["720","600","840","360"],c:0},
+{q:"Logical: If all roses are flowers, some flowers are red → is some roses red?",a:["No","Yes"],c:1},
+{q:"If x²=49, x=?",a:["7","-7","Both","None"],c:2},{q:"What is 7^3?",a:["343","324","336","349"],c:0},
+{q:"Next: 2,3,5,9,17,?",a:["33","34","31","35"],c:0},{q:"Find next perfect square after 144?",a:["169","196","121","150"],c:0},
+{q:"Solve: 3x+5=20, x=?",a:["5","4","6","3"],c:1},{q:"Sum of 50 to 100?",a:["3825","3750","3850","3900"],c:0},
+{q:"Which number divisible by 2,3,5?",a:["30","15","20","25"],c:0},{q:"Next: 1,4,9,16,25,?",a:["36","49","30","35"],c:0},
+{q:"Crazy: If 2 cats catch 2 mice in 2 mins, 6 cats catch 6 mice in?",a:["2 mins","6 mins","12 mins","3 mins"],c:0},
+{q:"Solve: x+y+z=30, x=10,y=5, z=?",a:["15","10","20","5"],c:0},{q:"Next Fibonacci after 13?",a:["21","20","22","19"],c:0},
+{q:"If today Tuesday, day in 365?",a:["Wednesday","Tuesday","Thursday","Monday"],c:0},{q:"Sum of digits 1234?",a:["10","9","11","12"],c:0},
+{q:"Factorial 5?",a:["120","24","100","60"],c:0},{q:"What is 2^10?",a:["1024","1000","2048","512"],c:0},
+{q:"Next prime after 199?",a:["211","201","203","209"],c:0},{q:"Solve 5x-3=22,x?",a:["5","4","6","3"],c:2}
+];
+
+// -------- GAME LOGIC --------
+let quiz=[],currentQuestion=0,score=0;
+
+function shuffle(arr){for(let i=arr.length-1;i>0;i--){let j=Math.floor(Math.random()*(i+1));[arr[i],arr[j]]=[arr[j],arr[i]];}}
+
+function startQuiz(level){
+    document.getElementById("difficulty").style.display="none";
+    document.getElementById("quizArea").style.display="block";
+
+    let bank;
+    switch(level){
+        case "normal": bank=normalBank; break;
+        case "hard": bank=hardBank; break;
+        case "extrahard": bank=extrahardBank; break;
+        case "extreme": bank=extremeBank; break;
+        case "impossible": bank=impossibleBank; break;
+        default: bank=normalBank;
+    }
+
+    shuffle(bank);
+    quiz=bank.slice(0,30);
+
+    currentQuestion=0; score=0;
+    loadQuestion();
+}
+
+function loadQuestion(){
+    if(currentQuestion>=quiz.length){
+        document.getElementById("question").innerHTML="🎉 Game Complete!";
+        document.getElementById("answers").innerHTML="";
+        document.getElementById("feedback").innerHTML="";
+        document.getElementById("score").innerHTML=
+        "Final Score: "+score+"/30<br><br><button onclick='location.reload()'>Play Again</button>";
+        return;
+    }
+
+    document.getElementById("feedback").innerHTML="";
+    let q=quiz[currentQuestion];
+    document.getElementById("question").innerHTML=
+    "Question "+(currentQuestion+1)+"/30<br><br>"+q.q;
+
+    let answers=[...q.a]; shuffle(answers);
+    let html=""; answers.forEach(option=>{html+=`<button onclick="checkAnswer(this,'${option}')">${option}</button><br>`;});
+    document.getElementById("answers").innerHTML=html;
+    document.getElementById("score").innerHTML="Score: "+score+"/30";
+}
+
+function checkAnswer(btn,selected){
+    let correct=quiz[currentQuestion].a[quiz[currentQuestion].c];
+    let buttons=document.querySelectorAll("#answers button");
+    buttons.forEach(b=>b.disabled=true);
+
+    if(selected===correct){
+        btn.classList.add("correct");
+        document.getElementById("feedback").innerHTML="✅ Correct!";
+        score++;
+    }else{
+        btn.classList.add("wrong");
+        buttons.forEach(b=>{if(b.innerText===correct)b.classList.add("correct");});
+        document.getElementById("feedback").innerHTML="❌ Wrong!";
+    }
+
+    currentQuestion++;
+    setTimeout(loadQuestion,1500);
+}
+</script>
+
+</body>
+</html>
